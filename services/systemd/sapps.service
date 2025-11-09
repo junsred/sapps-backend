@@ -1,0 +1,19 @@
+[Unit]
+Description=Sapps App
+
+[Service]
+User=root
+WorkingDirectory=/root/sapps
+Environment=GOTRACEBACK=all
+Environment=GODEBUG=asyncpreemptoff=1
+ExecStart=/root/sapps/start.sh
+Restart=always
+RestartSec=3
+Type=simple
+Slice=system.slice
+ControlGroup=cgroup
+KillMode=mixed
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target

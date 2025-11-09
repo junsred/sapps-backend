@@ -1,0 +1,10 @@
+.DS_Store
+.idea/
+go.work
+go.work.sum
+main.exe
+.vscode
+.env
+*.http
+/cdn/
+/rvc
