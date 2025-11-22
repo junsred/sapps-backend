@@ -22,9 +22,6 @@ func (r *GetAccount) Handler(c *middleware.RequestContext) error {
 		PremiumType       *string   `json:"premium_type"`
 		PremiumExpireDate int64     `json:"premium_expire_date,omitempty"`
 		Debug             *bool     `json:"debug,omitempty"`
-		TextsHumanized    int       `json:"texts_sappsd"`
-		WordsInputted     int       `json:"words_inputted"`
-		WordsGenerated    int       `json:"words_generated"`
 	}
 	user := c.User()
 	var premiumProducts []string
@@ -43,26 +40,6 @@ func (r *GetAccount) Handler(c *middleware.RequestContext) error {
 			premiumProducts = []string{}
 		}
 	}
-
-	type Stats struct {
-		TextsHumanized int `json:"texts_sappsd"`
-		WordsInputted  int `json:"words_inputted"`
-		WordsGenerated int `json:"words_generated"`
-	}
-	var stats Stats
-	err := r.MainDB.QueryRow(c.Context(), `
-		SELECT
-			COUNT(*) AS texts_sappsd,
-			COALESCE(SUM(LENGTH(input_text) - LENGTH(REPLACE(input_text, ' ', '')) + 1), 0) AS words_inputted,
-			COALESCE(SUM(LENGTH(output_text) - LENGTH(REPLACE(output_text, ' ', '')) + 1), 0) AS words_generated
-		FROM humanizations
-		WHERE user_id = $1 AND status = 'completed'`,
-		user.ID,
-	).Scan(&stats.TextsHumanized, &stats.WordsInputted, &stats.WordsGenerated)
-	if err != nil {
-		return c.Error(middleware.StatusInternalServerError, err.Error())
-	}
-
 	var special fiber.Map
 	if user.SpecialOfferDeadline != nil {
 		special = fiber.Map{
@@ -80,9 +57,6 @@ func (r *GetAccount) Handler(c *middleware.RequestContext) error {
 		PremiumType:       user.PremiumType,
 		PremiumExpireDate: user.PremiumExpireDate,
 		Debug:             user.Debug,
-		TextsHumanized:    stats.TextsHumanized,
-		WordsInputted:     stats.WordsInputted,
-		WordsGenerated:    stats.WordsGenerated,
 	}
 	return c.JSON(resp)
 }
