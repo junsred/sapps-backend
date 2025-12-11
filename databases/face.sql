@@ -91,3 +91,17 @@ create table revenuecat_logs
     created_at                  timestamp default now(),
     user_id                     text
 );
+
+create table scans
+(
+    scan_id    text not null default gen_random_uuid()::text
+        constraint scans_pk
+            primary key,
+    user_id    text not null,
+    image_id   text,
+    data       jsonb,
+    created_at timestamp default now()
+);
+
+create index scans_user_id_index
+    on scans (user_id);
