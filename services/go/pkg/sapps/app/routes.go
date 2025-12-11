@@ -18,7 +18,7 @@ func (b *BackendApp) setupDigHTTPRoutes(middlewares ...fiber.Handler) {
 	b.Get("/users/account", append(middlewares, middleware.HandleWrapper(mustInvoke[route.GetAccount]()))...)
 	b.Patch("/users/account", append(middlewares, middleware.HandleWrapper(mustInvoke[route.PatchAccount]()))...)
 	b.Post("/upload-image", append(middlewares, middleware.HandleWrapper(mustInvoke[route.PostUploadImage]()))...)
-	b.Post("/scan", append(middlewares, middleware.HandleWrapper(mustInvoke[route.PostScan]()))...)
+	b.Post("/scans", append(middlewares, middleware.HandleWrapper(mustInvoke[route.PostScan]()))...)
 	b.Get("/scans", append(middlewares, middleware.HandleWrapper(mustInvoke[route.GetScans]()))...)
 	b.Get("/scans/:id", append(middlewares, middleware.HandleWrapper(mustInvoke[route.GetScan]()))...)
 }
