@@ -112,7 +112,7 @@ func (r *PostScan) Handler(c *middleware.RequestContext) error {
 
 	response, _, err := r.ChatGPT.GenerateCompletionWithImage(
 		context.Background(),
-		shared.ChatModelGPT4o,
+		shared.ChatModelGPT5,
 		scanSystemPrompt,
 		imageURL,
 		openai.ChatCompletionNewParamsResponseFormatUnion{
