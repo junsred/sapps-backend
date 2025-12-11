@@ -118,7 +118,7 @@ func (r *PostScan) Handler(c *middleware.RequestContext) error {
 		openai.ChatCompletionNewParamsResponseFormatUnion{
 			OfText: &openai.ResponseFormatTextParam{},
 		},
-		0.3,
+		1,
 	)
 	if err != nil {
 		c.LogErr(err)
