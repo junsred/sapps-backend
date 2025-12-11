@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/shared"
@@ -99,6 +100,9 @@ func parseTOMLResponse(response string) ScanData {
 }
 
 func (r *PostScan) Handler(c *middleware.RequestContext) error {
+	if c.User().PremiumType == nil {
+		return c.Error(middleware.NewStatus(fiber.StatusBadRequest, "SHOW_PAYWALL"))
+	}
 	var req PostScanRequest
 	if err := c.BodyParser(&req); err != nil {
 		return c.Error(middleware.StatusBadRequest, "invalid request body")
