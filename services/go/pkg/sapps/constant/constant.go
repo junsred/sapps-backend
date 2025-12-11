@@ -8,7 +8,7 @@ import (
 
 var (
 	Test         = os.Getenv("TEST") == "true"
-	API_URL      = "https://ilhan-2.aiplaylist.co"
+	API_URL      = "sapps.cactusordering.com"
 	KIA_API_KEYS = strings.Split(os.Getenv("KIA_API_KEYS"), ",")
 	WD_PATH      = os.Getenv("WD_PATH")
 )
