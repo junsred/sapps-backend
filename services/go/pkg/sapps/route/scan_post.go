@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"regexp"
 	"sapps/lib/connection"
 	"sapps/pkg/sapps/constant"
@@ -123,6 +124,7 @@ func (r *PostScan) Handler(c *middleware.RequestContext) error {
 		c.LogErr(err)
 		return c.Error(middleware.StatusInternalServerError, "failed to analyze image")
 	}
+	log.Println(response)
 
 	scanData := parseTOMLResponse(response)
 	scanDataJSON, err := json.Marshal(scanData)
