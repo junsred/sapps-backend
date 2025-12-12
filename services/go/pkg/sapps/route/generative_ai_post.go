@@ -120,7 +120,7 @@ func (r *PostGenerativeAI) Handler(c *middleware.RequestContext) error {
 	}
 
 	if kieResp.Code != 200 {
-		c.LogErr(fmt.Errorf("kie api error: %s", kieResp.Message))
+		c.LogErr(fmt.Errorf("kie api error: %s %d", kieResp.Message, kieResp.Code))
 		return c.Error(middleware.StatusInternalServerError, "AI service error")
 	}
 
