@@ -79,7 +79,7 @@ func (r *PostGenerativeAI) Handler(c *middleware.RequestContext) error {
 		Input: KieCreateTaskInput{
 			ImageUrls:    []string{imageURL},
 			Prompt:       req.Prompt,
-			OutputFormat: "jpg",
+			OutputFormat: "jpeg",
 			ImageSize:    "auto",
 		},
 	}
