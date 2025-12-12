@@ -17,11 +17,12 @@ type GetAccount struct {
 
 func (r *GetAccount) Handler(c *middleware.RequestContext) error {
 	type Response struct {
-		Offerings         fiber.Map `json:"offerings"`
-		Coin              int       `json:"coin"`
-		PremiumType       *string   `json:"premium_type"`
-		PremiumExpireDate int64     `json:"premium_expire_date,omitempty"`
-		Debug             *bool     `json:"debug,omitempty"`
+		Offerings          fiber.Map `json:"offerings"`
+		Coin               int       `json:"coin"`
+		PremiumType        *string   `json:"premium_type"`
+		PremiumExpireDate  int64     `json:"premium_expire_date,omitempty"`
+		Debug              *bool     `json:"debug,omitempty"`
+		AlternativePaywall bool      `json:"alternative_paywall"`
 	}
 	user := c.User()
 	var premiumProducts []string
