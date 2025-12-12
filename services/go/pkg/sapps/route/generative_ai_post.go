@@ -33,10 +33,10 @@ type KieCreateTaskRequest struct {
 }
 
 type KieCreateTaskInput struct {
-	InputURLs   []string `json:"input_urls"`
-	Prompt      string   `json:"prompt"`
-	AspectRatio string   `json:"aspect_ratio"`
-	Resolution  string   `json:"resolution"`
+	ImageUrls    []string `json:"image_urls"`
+	Prompt       string   `json:"prompt"`
+	OutputFormat string   `json:"output_format"`
+	ImageSize    string   `json:"image_size"`
 }
 
 type KieCreateTaskResponse struct {
@@ -74,13 +74,13 @@ func (r *PostGenerativeAI) Handler(c *middleware.RequestContext) error {
 	imageURL := fmt.Sprintf("%s/cdn/img/%s.jpg", constant.API_URL, req.ImageID)
 
 	kieReq := KieCreateTaskRequest{
-		Model:       "flux-2/pro-image-to-image",
+		Model:       "google/nano-banana-edit",
 		CallBackURL: fmt.Sprintf("%s/webhook/kie/callback", constant.API_URL),
 		Input: KieCreateTaskInput{
-			InputURLs:   []string{imageURL},
-			Prompt:      req.Prompt,
-			AspectRatio: "1:1",
-			Resolution:  "1K",
+			ImageUrls:    []string{imageURL},
+			Prompt:       req.Prompt,
+			OutputFormat: "jpg",
+			ImageSize:    "auto",
 		},
 	}
 

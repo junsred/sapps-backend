@@ -24,4 +24,5 @@ func (b *BackendApp) setupDigHTTPRoutes(middlewares ...fiber.Handler) {
 	b.Get("/scans/:id", append(middlewares, middleware.HandleWrapper(mustInvoke[route.GetScan]()))...)
 	b.Post("/generative-ai", append(middlewares, middleware.HandleWrapper(mustInvoke[route.PostGenerativeAI]()))...)
 	b.Get("/generative-ai/:id", append(middlewares, middleware.HandleWrapper(mustInvoke[route.GetGenerativeAI]()))...)
+	b.Get("/generations", append(middlewares, middleware.HandleWrapper(mustInvoke[route.GetGenerativeAIList]()))...)
 }
