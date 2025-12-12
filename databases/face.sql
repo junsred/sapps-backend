@@ -105,3 +105,35 @@ create table scans
 
 create index scans_user_id_index
     on scans (user_id);
+
+create table images
+(
+    id           text not null
+        constraint images_pk
+            primary key,
+    user_id      text,
+    created_date timestamp default now(),
+    size         bigint,
+    content_type text
+);
+
+create index images_user_id_index on images (user_id);
+
+create table generative_ai_tasks
+(
+    id           text not null default gen_random_uuid()::text
+        constraint generative_ai_tasks_pk
+            primary key,
+    user_id      text not null,
+    image_id     text,
+    prompt       text,
+    task_id      text,
+    status       text default 'pending',
+    result_url   text,
+    raw_response text,
+    created_at   timestamp default now(),
+    completed_at timestamp
+);
+
+create index generative_ai_tasks_user_id_index on generative_ai_tasks (user_id);
+create index generative_ai_tasks_task_id_index on generative_ai_tasks (task_id);

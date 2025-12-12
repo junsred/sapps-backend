@@ -9,6 +9,7 @@ import (
 
 func (b *BackendApp) setupDigWithoutAuthHTTPRoutes() {
 	b.Post("/webhook/revenuecat/face", middleware.HandleWrapper(mustInvoke[route.PostRevenuecatWebhook]()))
+	b.Post("/webhook/kie/callback", middleware.HandleWrapper(mustInvoke[route.PostGenerativeAICallback]()))
 
 	b.Get("/cdn/img/:id", middleware.HandleWrapper(mustInvoke[route.GetCDNImage]()))
 	b.Post("/login/firebase", middleware.HandleWrapper(mustInvoke[route.PostLoginFirebase]()))
@@ -21,4 +22,6 @@ func (b *BackendApp) setupDigHTTPRoutes(middlewares ...fiber.Handler) {
 	b.Post("/scans", append(middlewares, middleware.HandleWrapper(mustInvoke[route.PostScan]()))...)
 	b.Get("/scans", append(middlewares, middleware.HandleWrapper(mustInvoke[route.GetScans]()))...)
 	b.Get("/scans/:id", append(middlewares, middleware.HandleWrapper(mustInvoke[route.GetScan]()))...)
+	b.Post("/generative-ai", append(middlewares, middleware.HandleWrapper(mustInvoke[route.PostGenerativeAI]()))...)
+	b.Get("/generative-ai/:id", append(middlewares, middleware.HandleWrapper(mustInvoke[route.GetGenerativeAI]()))...)
 }
