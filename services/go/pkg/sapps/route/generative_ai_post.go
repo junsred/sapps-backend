@@ -71,6 +71,18 @@ func (r *PostGenerativeAI) Handler(c *middleware.RequestContext) error {
 		return c.Error(middleware.StatusBadRequest, "prompt is required")
 	}
 
+	var existingTask PostGenerativeAIResponse
+	err := r.MainDB.QueryRow(c.Context(),
+		`SELECT id, task_id, status, EXTRACT(EPOCH FROM created_at)::bigint 
+		 FROM generative_ai_tasks 
+		 WHERE user_id = $1 AND image_id = $2 AND LOWER(prompt) = LOWER($3)
+		 LIMIT 1`,
+		c.UserID(), req.ImageID, req.Prompt).Scan(&existingTask.ID, &existingTask.TaskID, &existingTask.Status, &existingTask.CreatedAt)
+
+	if err == nil {
+		return c.JSON(existingTask)
+	}
+
 	imageURL := fmt.Sprintf("%s/cdn/img/%s.jpg", constant.API_URL, req.ImageID)
 
 	kieReq := KieCreateTaskRequest{
