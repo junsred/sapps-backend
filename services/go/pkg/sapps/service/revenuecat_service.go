@@ -9,6 +9,8 @@ import (
 
 	"sapps/lib/util"
 	maindb "sapps/pkg/sapps/lib/db/main"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type RevenueCatService struct {
@@ -116,8 +118,10 @@ func (s *RevenueCatService) HandleWebhook(ctx context.Context, eventData *Revenu
 
 	// Process based on event type
 	switch eventData.Event.Type {
-	case "INITIAL_PURCHASE", "RENEWAL", "CANCELLATION", "EXPIRATION", "PRODUCT_CHANGE", "NON_RENEWING_PURCHASE":
+	case "INITIAL_PURCHASE", "RENEWAL", "CANCELLATION", "EXPIRATION", "NON_RENEWING_PURCHASE":
 		return s.updatePremiumStatus(ctx, eventData.Event.AppUserID, eventData.Event.TransactionID, productID, eventData.Event.PurchasedAtMs, eventData.Event.ExpirationAtMs)
+	case "PRODUCT_CHANGE":
+		return s.handleProductChange(ctx, eventData, productID)
 	case "TRANSFER":
 		return s.handleTransfer(ctx, eventData)
 	default:
@@ -142,12 +146,91 @@ func (s *RevenueCatService) handleTransfer(ctx context.Context, event *RevenueCa
 	// Start premium membership for new user
 	if len(event.Event.TransferredTo) > 0 {
 		for _, userID := range event.Event.TransferredTo {
+			// Check if user exists
+			var exists bool
+			err := s.db.QueryRow(ctx, `
+				SELECT EXISTS(SELECT 1 FROM users WHERE firebase_id = $1)
+			`, userID).Scan(&exists)
+			if err != nil {
+				util.LogErr(err)
+				return err
+			}
+
+			if !exists {
+				// User doesn't exist, update the old user's firebase_id to the new one
+				if len(event.Event.TransferredFrom) > 0 {
+					_, err := s.db.Exec(ctx, `
+						UPDATE users 
+						SET firebase_id = $1
+						WHERE firebase_id = $2
+					`, userID, event.Event.TransferredFrom[0])
+					if err != nil {
+						util.LogErr(err)
+						return err
+					}
+				}
+			}
+
+			// Update premium status for the user (either existing or newly updated)
 			if err := s.updatePremiumStatus(ctx, userID, transactionID, "", event.Event.PurchasedAtMs, event.Event.ExpirationAtMs); err != nil {
 				return err
 			}
 		}
 	}
 
+	return nil
+}
+
+func (s *RevenueCatService) handleProductChange(ctx context.Context, event *RevenueCatEvent, productID string) error {
+	var endDate *time.Time
+	if event.Event.ExpirationAtMs > 0 {
+		endDateMs := time.UnixMilli(event.Event.ExpirationAtMs)
+		endDate = &endDateMs
+	}
+	if endDate != nil {
+		if time.Now().After(*endDate) {
+			err := s.db.QueryRow(ctx, `
+		SELECT pd.expire_date FROM users u
+		LEFT JOIN premium_data pd ON pd.id = u.premium_id AND pd.expire_date > NOW()
+		WHERE u.firebase_id = $1
+	`, event.Event.AppUserID).Scan(&endDate)
+			if err != nil && err != pgx.ErrNoRows {
+				util.LogErr(err)
+				return err
+			}
+			if endDate == nil || time.Now().After(*endDate) {
+				tempEndDate := time.Now().Add(time.Hour * 24 * 1)
+				endDate = &tempEndDate
+			}
+		}
+	}
+	premiumType := productID
+	if strings.Contains(premiumType, ":") {
+		premiumType = strings.Split(premiumType, ":")[0]
+	}
+	_, err := s.db.Exec(ctx, `
+		UPDATE premium_data SET expire_date = greatest(expire_date, $1), premium_type = $2 WHERE id = $3
+	`, endDate, premiumType, event.Event.TransactionID)
+	if err != nil {
+		util.LogErr(err)
+		return err
+	}
+	_, err = s.db.Exec(ctx, `
+		UPDATE users 
+		SET premium_id = NULL
+		WHERE premium_id = $1
+	`, event.Event.TransactionID)
+	if err != nil {
+		util.LogErr(err)
+		return err
+	}
+	_, err = s.db.Exec(ctx, `
+		UPDATE users SET premium_id = $1 WHERE firebase_id = $2
+	`, event.Event.TransactionID, event.Event.AppUserID)
+	if err != nil {
+		util.LogErr(err)
+		return err
+	}
 	return nil
 }
 
