@@ -17,12 +17,12 @@ type GetAccount struct {
 
 func (r *GetAccount) Handler(c *middleware.RequestContext) error {
 	type Response struct {
-		Offerings         fiber.Map `json:"offerings"`
-		Coin              int       `json:"coin"`
-		PremiumType       *string   `json:"premium_type"`
-		PremiumExpireDate int64     `json:"premium_expire_date,omitempty"`
-		Debug             *bool     `json:"debug,omitempty"`
-		//AlternativePaywall bool      `json:"alternative_paywall"`
+		Offerings          fiber.Map `json:"offerings"`
+		Coin               int       `json:"coin"`
+		PremiumType        *string   `json:"premium_type"`
+		PremiumExpireDate  int64     `json:"premium_expire_date,omitempty"`
+		Debug              *bool     `json:"debug,omitempty"`
+		AlternativePaywall *bool     `json:"alternative_paywall"`
 	}
 	user := c.User()
 	var premiumProducts []string
@@ -51,6 +51,7 @@ func (r *GetAccount) Handler(c *middleware.RequestContext) error {
 	resp := Response{
 		Offerings: fiber.Map{
 			"premium":   premiumProducts,
+			"packages":  []string{"$rc_annual", "$rc_weekly"},
 			"special":   special,
 			"discounts": []string{"sappsr_pro_c_1w_trial_2"},
 		},
@@ -58,6 +59,10 @@ func (r *GetAccount) Handler(c *middleware.RequestContext) error {
 		PremiumType:       user.PremiumType,
 		PremiumExpireDate: user.PremiumExpireDate,
 		Debug:             user.Debug,
+	}
+	if c.Store() != nil && (*c.Store() == "app_store") {
+		boolVal := false
+		resp.AlternativePaywall = &boolVal
 	}
 	return c.JSON(resp)
 }
