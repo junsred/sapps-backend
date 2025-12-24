@@ -73,7 +73,7 @@ func (r *PostLoginFirebase) Handler(c *middleware.RequestContext) error {
 			_, err = r.PostgresMainDB.Exec(ctx,
 				`INSERT INTO users (id, firebase_id, last_login, session, last_token, device_id, language, build_number, store, ip_address, country) VALUES ($1, $2, NOW(), $3, $4, $5, $6, $7, $8, $9, $10)`,
 				userID, authUser.UID, session, token, req.DeviceID, language, buildNumber, store, c.Get("CF-Connecting-IP"), c.Get("CF-IPCountry"))
-			/*if err == nil && c.BuildNumber() != nil && *c.BuildNumber() >= 8 && c.Store() != nil && (*c.Store() == "play_store" || *c.Store() == "local_source") {
+			if err == nil && c.BuildNumber() != nil && *c.BuildNumber() >= 13 && c.Store() != nil && (*c.Store() == "play_store" || *c.Store() == "local_source") {
 				genUUID := uuid.New().String()
 				// insert to premium_data
 				_, err = r.PostgresMainDB.Exec(ctx,
@@ -88,7 +88,7 @@ func (r *PostLoginFirebase) Handler(c *middleware.RequestContext) error {
 				if err != nil {
 					log.Println("Error updating users with premium data:", err)
 				}
-			}*/
+			}
 		} else {
 			_, err = r.PostgresMainDB.Exec(ctx,
 				`UPDATE users SET last_login = NOW(), session = $1, last_token = $2, device_id = $3 WHERE id = $4`,
