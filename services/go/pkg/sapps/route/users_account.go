@@ -60,9 +60,8 @@ func (r *GetAccount) Handler(c *middleware.RequestContext) error {
 		PremiumExpireDate: user.PremiumExpireDate,
 		Debug:             user.Debug,
 	}
-	if c.Store() != nil && (*c.Store() == "app_store") {
-		boolVal := false
-		resp.AlternativePaywall = &boolVal
-	}
+	boolVal := false
+	resp.AlternativePaywall = &boolVal
+
 	return c.JSON(resp)
 }
