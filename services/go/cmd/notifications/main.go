@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	"sapps/lib/connection"
-	"sapps/lib/util"
 	"log"
 	"os"
 	"os/signal"
+	"sapps/lib/connection"
+	"sapps/lib/util"
 	"syscall"
 
 	_ "net/http/pprof"
@@ -15,7 +15,6 @@ import (
 )
 
 func main() {
-	// Check command line arguments for soulmate notification
 	SendPushToNonPremiumUsers()
 
 	quit := make(chan os.Signal, 1)
@@ -66,8 +65,8 @@ func SendPushToNonPremiumUsers() {
 			batch := tokens[i:min(i+500, len(tokens))]
 			message := &messaging.MulticastMessage{
 				Notification: &messaging.Notification{
-					Title: "PRO 87% OFF",
-					Body:  "Limited time offer!",
+					Title: "Unmask your potential",
+					Body:  "Analyze your face",
 				},
 				Data: map[string]string{
 					"not_type": "show_paywall",
